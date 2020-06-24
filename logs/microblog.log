@@ -52,3 +52,7 @@ NameError: name 'EmptyForm' is not defined
 2020-06-23 16:51:42,758 INFO: $(message)s [in /home/me/bin/python/microblog/app/__init__.py:43]
 2020-06-23 16:57:35,829 INFO: $(message)s [in /home/me/bin/python/microblog/app/__init__.py:43]
 2020-06-24 09:05:19,738 INFO: $(message)s [in /home/me/bin/python/microblog/app/__init__.py:43]
+2020-06-24 09:08:20,013 INFO: $(message)s [in /home/me/bin/python/microblog/app/__init__.py:45]
+2020-06-24 09:10:44,308 INFO: $(message)s [in /home/me/bin/python/microblog/app/__init__.py:45]
+2020-06-24 09:23:44,349 INFO: $(message)s [in /home/me/bin/python/microblog/app/__init__.py:45]
+2020-06-24 09:44:36,064 INFO: $(message)s [in /home/me/bin/python/microblog/app/__init__.py:45]
