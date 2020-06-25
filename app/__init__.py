@@ -11,6 +11,11 @@ from flask_moment import Moment
 from flask_babel import Babel, lazy_gettext as _l
 from elasticsearch import Elasticsearch
 from config import Config
+from urllib.parse import urlparse
+from redis import Redis
+import rq
+import os, base64, re
+
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -34,8 +39,37 @@ def create_app(config_class=Config):
     bootstrap.init_app(app)
     moment.init_app(app)
     babel.init_app(app)
-    app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']]) \
-        if app.config['ELASTICSEARCH_URL'] else None
+
+    app.redis = Redis.from_url(app.config['REDIS_URL'])
+    app.task_queue = rq.Queue('microblog-tasks', connection=app.redis)
+
+   # Parse the auth and host from env:
+   bonsai = os.environ['ELASTICSEARCH_URL']
+   auth = re.search('https\:\/\/(.*)\@', bonsai).group(1).split(':')
+   host = bonsai.replace('https://%s:%s@' % (auth[0], auth[1]), '')
+
+   # optional port
+   match = re.search('(:\d+)', host)
+   if match:
+      p = match.group(0)
+      host = host.replace(p, '')
+      port = int(p.split(':')[1])
+   else:
+      port=443
+
+   # Connect to cluster over SSL using auth for best security:
+   es_header = [{
+     'host': host,
+     'port': port,
+     'use_ssl': True,
+     'http_auth': (auth[0],auth[1])
+   }]
+
+   # Instantiate the new Elasticsearch connection:
+   app.elasticsearch = Elasticsearch(es_header)
+
+#    app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']]) \
+#        if app.config['ELASTICSEARCH_URL'] else None
 
     from app.errors import bp as errors_bp
     app.register_blueprint(errors_bp)
